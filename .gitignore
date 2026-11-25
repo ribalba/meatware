@@ -1,0 +1,8 @@
+node_modules
+dist
+*.log
+
+# Downloaded model packs (only the used files are copied to public/models)
+asset-staging/
+# Style comparison screenshots
+style-options/

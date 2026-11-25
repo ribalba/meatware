@@ -1,0 +1,32 @@
+/* Elevator B instrument panel. Matches the shared HUD: warm dark window, pixel bevels, no rounding. */
+#evPanel { position: absolute; left: 14px; top: 262px; width: 290px; font: 18px/1 var(--vt); }
+#evPanel .body { padding: 6px 12px 10px; }
+#evPanel .wt { background: #5a3a12; color: #ffe2b8; }
+#evPanel .evTop { display: flex; align-items: center; gap: 10px; margin: 4px 0 8px; }
+#evFloorNum { width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; font: 22px/1 var(--px); color: #ffb030; background: #140c06; border: 2px solid; border-color: var(--black) #6a5236 #6a5236 var(--black); text-shadow: 0 0 6px rgba(255, 160, 40, 0.8); }
+#evFloorName { flex: 1; font: 8px/1.5 var(--px); color: var(--ink); }
+#evDir { font: 8px/1 var(--px); color: var(--amber); }
+#evPanel .row { margin: 6px 0; }
+#evPanel .row label { width: 70px; }
+#evPanel .row b { width: 54px; }
+.evLevel { flex: 1; height: 14px; position: relative; border: 2px solid; border-color: var(--black) #6a5236 #6a5236 var(--black); background: #0e1a10; }
+.evLevel::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: #e0b21b; }
+.evLevel::after { content: ''; position: absolute; left: calc(50% - 9px); width: 18px; top: 0; bottom: 0; background: rgba(124, 255, 106, 0.18); }
+#evLevelMark { position: absolute; top: 1px; bottom: 1px; width: 6px; margin-left: -3px; left: 50%; background: #7cff6a; transition: left 0.08s linear; }
+#evLevelMark.mid { background: #ffd040; }
+#evLevelMark.bad { background: #ff4030; }
+#evLevelMark.off { display: none; }
+#evSilence { --fill: #9b7cd8; }
+#evWeight { --fill: #7cc44a; }
+#evWeight.over { --fill: #d8452f; }
+.evLine { display: flex; justify-content: space-between; gap: 6px; margin: 5px 0 0; color: var(--dim); white-space: nowrap; }
+.evLine span { color: var(--ink); }
+.evLine span.warn { color: #ff6a50; }
+#evLeverBox { display: flex; gap: 2px; }
+#evLeverBox i { width: 14px; height: 10px; background: #2e2116; border: 1px solid var(--black); }
+#evLeverBox i.on { background: var(--amber); }
+#evLeverBox i.stop.on { background: #e8e0c8; }
+#evStamp { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); font: 28px/1 var(--px); letter-spacing: 2px; color: #7cff6a; text-shadow: 3px 3px 0 var(--black); opacity: 0; transition: opacity 0.25s steps(3); pointer-events: none; white-space: nowrap; }
+#evStamp.on { opacity: 1; }
+#evStamp.mid { color: #ffd040; }
+#evStamp.bad { color: #ff4030; }

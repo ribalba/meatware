@@ -1,0 +1,30 @@
+/* The handheld scanner of the warehouse picker. Matches the HUD windows, with a green LCD. */
+#pkScanner {
+  position: absolute;
+  left: 14px;
+  top: 252px;
+  width: 290px;
+}
+#pkScanner .wt { display: flex; justify-content: space-between; background: #4e3418; color: #ffe2b8; }
+#pkScanner .wt i { font-style: normal; color: #f0b43c; }
+#pkScanner .lcd {
+  margin: 6px 8px 8px;
+  padding: 6px 8px 7px;
+  background: #9bab5a repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.07) 2px 3px);
+  color: #1f2a0c;
+  border: 2px solid;
+  border-color: #0a0604 #5c6a2a #5c6a2a #0a0604;
+  font: 19px/1 var(--vt);
+}
+#pkScanner .loc { font: 11px/1.4 var(--px); white-space: nowrap; }
+#pkScanner .item { margin: 4px 0 6px; font: 21px/1 var(--vt); text-transform: uppercase; }
+#pkScanner .row { display: flex; justify-content: space-between; gap: 6px; }
+#pkScanner .status { margin-top: 5px; padding-top: 4px; border-top: 1px dashed #4a5a20; font: 18px/1 var(--vt); text-transform: uppercase; }
+#pkScanner .late { color: #7a1408; }
+#pkScanner.alert .lcd { background-color: #c9905a; animation: pkBlink 0.8s steps(1) infinite; }
+#pkScanner.ok .lcd { background-color: #b8d66a; }
+#pkScanner.bad .lcd { background-color: #d07a5a; }
+@keyframes pkBlink { 50% { background-color: #9bab5a; } }
+@media (max-height: 640px) {
+  #pkScanner { top: auto; bottom: 60px; left: auto; right: 340px; }
+}

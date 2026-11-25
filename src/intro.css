@@ -1,0 +1,28 @@
+/* Speech bubbles that follow robots (game and intro). */
+#bubbles { position: fixed; inset: 0; pointer-events: none; z-index: 25; overflow: hidden; }
+.bubble { position: absolute; left: 0; top: 0; max-width: 280px; padding: 5px 10px 6px; background: #f4ecd8; color: #1d1a16; border: 3px solid #1d1a16; box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55); font: 22px/1.0 'VT323', 'Courier New', monospace; text-align: center; transform-origin: 50% 100%; white-space: normal; transition: opacity 0.3s; }
+.bubble b { display: block; margin: -2px 0 3px; font: 8px/1.4 'Press Start 2P', monospace; color: #8e1d14; letter-spacing: 0; }
+.bubble::after { content: ''; position: absolute; left: 50%; bottom: -12px; margin-left: -6px; border: 6px solid transparent; border-top: 6px solid #1d1a16; }
+.bubble.pop { animation: bubblePop 0.18s steps(3); }
+.bubble.out { opacity: 0; }
+@keyframes bubblePop { from { transform-origin: 50% 100%; clip-path: inset(40% 40% 0 40%); } to { clip-path: inset(0); } }
+
+/* Old desk behind the newspaper headlines */
+#introBlack.desk {
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 210, 140, 0.18), rgba(0, 0, 0, 0.75) 70%),
+    repeating-linear-gradient(90deg, #3a2516 0 3px, #44301d 3px 7px, #352113 7px 9px, #3f2a19 9px 16px);
+  image-rendering: pixelated;
+}
+
+/* Intro text in the same pixel fonts as the HUD (overrides the older rules in style.css). */
+#introCaption { font: 34px/1.15 'VT323', 'Courier New', monospace; letter-spacing: 1px; color: #f1e7cf; text-shadow: 2px 2px 0 #000; }
+#introCaption.boss { color: #ff7a5c; }
+#introCaption.stamp { font: 64px/1 'Press Start 2P', monospace; color: #e74c3c; letter-spacing: 4px; text-shadow: 5px 5px 0 #3a0c08; }
+#introCard b { font: 84px/1 'Press Start 2P', monospace; letter-spacing: 6px; color: #e74c3c; text-shadow: 6px 6px 0 #000; }
+#introCard span { font: 30px/1.15 'VT323', monospace; color: #f1e7cf; text-shadow: 2px 2px 0 #000; margin-top: 12px; }
+#introChat { font: 21px/1.15 'VT323', monospace; border-radius: 0; border: 3px solid #000; box-shadow: inset 2px 2px 0 #a88a5c, inset -2px -2px 0 #140c06; background: rgba(20, 14, 10, 0.88); }
+#introTitle b { font: 76px/1.3 'Press Start 2P', monospace; letter-spacing: 6px; border-radius: 0; border-width: 10px; padding: 18px 34px 10px; text-shadow: 6px 6px 0 #3a0c08; }
+#introTitle span { font: 30px 'VT323', monospace; letter-spacing: 6px; color: #f1e7cf; }
+#introSkip { font: 9px 'Press Start 2P', monospace; color: #8a7a62; }
+#introLetter { font: 22px/1.2 'VT323', 'Courier New', monospace; }

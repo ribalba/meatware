@@ -1,0 +1,24 @@
+/* Mail Sorter panels. Same bevels as the HUD, with paper inside. */
+#mailAddr { display: none; position: absolute; left: 14px; bottom: 72px; width: 290px; pointer-events: none; }
+#mailAddr.on { display: block; }
+#mailAddr .mp-paper { margin: 6px; padding: 8px 10px 8px; background: #efe6cf; color: #1a1a1a; border: 2px solid; border-color: #fff6dc #8a7a5a #8a7a5a #fff6dc; font: 22px/1 var(--vt); position: relative; }
+#mailAddr .mp-paper.mp-penpal { background: #dde6ee; color: #2e3f8f; font-style: italic; box-shadow: inset 0 0 0 4px #dde6ee, inset 0 0 0 7px #c0392b; }
+#mailAddr .mp-paper.mp-bad { color: #2e3f8f; font-style: italic; }
+#mailAddr .mp-paper.mp-chewed { background: #cbbd98; }
+#mailAddr .mp-paper .mp-from { font-size: 16px; color: #6a5a40; margin-bottom: 6px; }
+#mailAddr .mp-paper .mp-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mailAddr .mp-paper .mp-code { color: #7a2416; }
+#mailAddr .mp-paper .mp-stamp { position: absolute; right: 8px; top: 8px; width: 34px; height: 40px; border: 2px dashed #8a7a5a; font: 7px/1.3 var(--px); color: #8a7a5a; display: flex; align-items: center; justify-content: center; text-align: center; }
+#mailAddr .mp-paper .mp-stamp.mp-ok { border: 3px solid #c0392b; background: #c0392b; color: #fff3d6; }
+#mailAddr .mp-paper .mp-stamp.mp-frank { border: 2px solid #c0392b; border-radius: 0; color: #c0392b; transform: rotate(-8deg); }
+#mailAddr .mp-tags { padding: 2px 8px 6px; font: 8px/1.6 var(--px); color: var(--amber); }
+#mailAddr .mp-tags span { display: inline-block; margin: 2px 6px 0 0; padding: 3px 4px 2px; background: #1a110b; border: 1px solid #6a5236; }
+#mailAddr .mp-tags span.mp-warn { color: #ff8a6a; border-color: #ff8a6a; }
+
+#mailPaper { display: none; position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-1deg); width: min(560px, calc(100vw - 720px)); min-width: 380px; pointer-events: none; }
+#mailPaper.on { display: block; animation: mailPaperIn 0.2s steps(3); }
+#mailPaper .mp-paper { margin: 6px; padding: 18px 22px 20px; background: #f6f0dc; color: #1f2a44; border: 2px solid; border-color: #fff6dc #8a7a5a #8a7a5a #fff6dc; font: 26px/1.15 var(--vt); background-image: repeating-linear-gradient(transparent 0 29px, rgba(46, 95, 168, 0.18) 29px 30px); }
+#mailPaper .mp-paper h4 { margin: 0 0 10px; font: 12px/1.3 var(--px); color: #7a2416; letter-spacing: 1px; }
+#mailPaper .mp-paper p { margin: 0; white-space: pre; }
+#mailPaper .mp-foot { padding: 4px 10px 6px; font: 8px/1 var(--px); color: var(--dim); text-align: right; }
+@keyframes mailPaperIn { from { transform: translate(-50%, -40%) rotate(-4deg); opacity: 0; } to { transform: translate(-50%, -50%) rotate(-1deg); opacity: 1; } }

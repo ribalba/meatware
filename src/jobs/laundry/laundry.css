@@ -1,0 +1,33 @@
+/* FOLD-O-MATIC assist panel. Matches the HUD: warm dark panel, pixel bevels, no rounded corners. */
+#ld-fold {
+  position: fixed;
+  left: 50%;
+  top: 15%;
+  transform: translateX(-50%);
+  width: 420px;
+  display: none;
+  pointer-events: none;
+  z-index: 20;
+  background: rgba(22, 15, 10, 0.9);
+  border: 3px solid;
+  border-color: #d9bf86 #5c4127 #5c4127 #d9bf86;
+  box-shadow: 0 0 0 2px #0a0604, inset 0 0 0 2px #0a0604;
+  color: #f3e6c8;
+  font: 20px/1.1 'VT323', 'Courier New', monospace;
+}
+#ld-fold.on { display: block; }
+#ld-fold .t { margin: 2px 2px 0; padding: 7px 8px 6px; background: #2f5d50; border-bottom: 2px solid #0a0604; font: 8px/1 'Press Start 2P', monospace; letter-spacing: 1px; white-space: nowrap; }
+#ld-fold.sheet .t { background: #7a2416; }
+#ld-fold .b { padding: 8px 12px 10px; text-align: center; }
+#ld-fold .name { font: 10px/1.4 'Press Start 2P', monospace; color: #ffe2b8; }
+#ld-fold .keys { display: flex; justify-content: center; gap: 6px; margin: 10px 0 8px; flex-wrap: wrap; }
+#ld-fold .k { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font: 16px/1 'Press Start 2P', monospace; background: #3a2a1c; border: 2px solid; border-color: #b9a47c #3a2a1c #3a2a1c #b9a47c; color: #f3e6c8; }
+#ld-fold .k.done { background: #3d6b2a; color: #c8f0a8; border-color: #7cc44a #24401a #24401a #7cc44a; }
+#ld-fold .k.cur { background: #f0b43c; color: #1b1208; animation: ld-blink 0.5s steps(2) infinite; }
+#ld-fold.bad .k.cur { background: #c0392b; color: #fff; }
+#ld-fold .bar { height: 10px; background: #0a0604; border: 2px solid #5c4127; margin: 4px 0 6px; }
+#ld-fold .bar i { display: block; height: 100%; background: #e8604a; }
+#ld-fold .help { color: #b9a47c; font-size: 18px; }
+#ld-fold .mm { color: #7cc44a; }
+#ld-fold.bad .mm { color: #e8604a; }
+@keyframes ld-blink { 50% { filter: brightness(1.4); } }

@@ -1,0 +1,233 @@
+/* Late 90s console UI. Pixel fonts, hard bevels, flat bands, no rounded corners. */
+:root {
+  --px: 'Press Start 2P', 'Courier New', monospace;
+  --vt: 'VT323', 'Courier New', monospace;
+  --ink: #f3e6c8;
+  --dim: #b9a47c;
+  --amber: #f0b43c;
+  --red: #c0392b;
+  --red-hi: #e8604a;
+  --green: #7cc44a;
+  --black: #0a0604;
+  --win-bg: rgba(22, 15, 10, 0.88);
+  --bevel-hi: #d9bf86;
+  --bevel-lo: #5c4127;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0806; color: var(--ink); font: 20px/1.1 var(--vt); }
+#app { position: fixed; inset: 0; }
+canvas { display: block; }
+
+#loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; font: 16px var(--px); letter-spacing: 1px; color: var(--amber); text-shadow: 2px 2px 0 #5e1a10; }
+#hud { position: fixed; inset: 0; pointer-events: none; }
+#hud.hidden { display: none; }
+
+/* A window: black outline, light top-left and dark bottom-right bevel, black inner line. */
+.win, .card, .toast, #hint, #holding, #help, #progress {
+  background: var(--win-bg);
+  border: 3px solid;
+  border-color: var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+  box-shadow: 0 0 0 2px var(--black), inset 0 0 0 2px var(--black);
+  border-radius: 0;
+}
+/* Title band at the top of a window. */
+.wt { margin: 2px 2px 0; padding: 7px 8px 6px; background: #7a2416; border-bottom: 2px solid var(--black); font: 8px/1 var(--px); letter-spacing: 1px; color: var(--ink); white-space: nowrap; }
+
+#vignette { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(240, 180, 60, 0.5) 100%); transition: opacity 0.4s; }
+
+#panel { position: absolute; top: 14px; left: 14px; width: 290px; }
+#panel .body { padding: 8px 12px 12px; }
+#job { color: #ffe2b8; }
+#clock { font: 24px/1 var(--px); margin: 6px 0 12px; color: var(--ink); text-shadow: 3px 3px 0 var(--black); white-space: nowrap; }
+#clock.long { font-size: 16px; color: var(--amber); margin: 10px 0 14px; }
+.row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.row label, #writeups label { width: 80px; flex: none; font: 8px/1 var(--px); color: var(--dim); }
+.row b { width: 44px; flex: none; text-align: right; font: 8px/1 var(--px); color: var(--ink); }
+
+/* Segmented block bars. The track shows the empty blocks, the fill paints its color and masks the gaps again. */
+.bar {
+  flex: 1; height: 14px; overflow: hidden;
+  border: 2px solid; border-color: var(--black) #6a5236 #6a5236 var(--black);
+  background: repeating-linear-gradient(90deg, #2e2116 0 6px, #0e0906 6px 8px);
+}
+.bar i {
+  --fill: var(--green);
+  display: block; height: 100%; width: 0; transition: width 0.2s;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, #0e0906 6px 8px),
+    linear-gradient(rgba(255, 255, 255, 0.32) 0 3px, transparent 3px calc(100% - 3px), rgba(0, 0, 0, 0.3) calc(100% - 3px)),
+    var(--fill);
+}
+.bar.red i { --fill: #d8452f; }
+.bar.orange i { --fill: #e8862a; }
+.bar.yellow i { --fill: #f0c23c; }
+
+#writeups { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+.wu { width: 18px; height: 18px; border: 2px solid; border-color: var(--black) #6a5236 #6a5236 var(--black); background: #1a110b; }
+.wu.on { background: #d8452f; border-color: #ff9a7a #5e1a10 #5e1a10 #ff9a7a; box-shadow: 0 0 0 1px var(--black); }
+#pocket { display: none; margin-top: 10px; font: 20px/1 var(--vt); color: var(--amber); }
+
+#watching { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); padding: 9px 14px 8px; background: var(--red); color: #fff3d6; font: 16px/1 var(--px); letter-spacing: 1px; white-space: nowrap; border: 3px solid; border-color: #ff9a7a #4a0e08 #4a0e08 #ff9a7a; box-shadow: 0 0 0 2px var(--black); opacity: 0; transition: opacity 0.15s steps(2); }
+#watching.on { opacity: 1; animation: blink 0.8s steps(1) infinite; }
+@keyframes blink { 50% { background: #5e1a10; color: #ffb09a; } }
+
+#filming { display: none; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); padding: 7px 10px 6px; background: #a8336e; color: #ffe6f2; font: 8px/1 var(--px); letter-spacing: 1px; white-space: nowrap; border: 2px solid; border-color: #ff9ccc #4a1030 #4a1030 #ff9ccc; box-shadow: 0 0 0 2px var(--black); }
+/* A tiny pixel cross. */
+#crosshair { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: linear-gradient(var(--ink), var(--ink)) center / 2px 10px no-repeat, linear-gradient(var(--ink), var(--ink)) center / 10px 2px no-repeat; filter: drop-shadow(1px 1px 0 #000); }
+#hint { display: none; position: absolute; left: 50%; top: calc(50% + 24px); transform: translateX(-50%); padding: 5px 12px 4px; font: 22px/1 var(--vt); white-space: nowrap; }
+#holding { display: none; position: absolute; right: 340px; bottom: 16px; padding: 5px 12px 4px; font: 20px/1 var(--vt); color: var(--amber); }
+
+#progress { display: none; position: absolute; left: 50%; top: calc(50% + 64px); width: 560px; transform: translateX(-50%); padding: 8px 12px 10px; text-align: center; font: 22px/1 var(--vt); text-shadow: 2px 2px 0 var(--black); }
+#progress.on { display: block; }
+#progress .bar { margin-top: 8px; height: 16px; }
+#progress .bar i { --fill: #e8c46a; transition: none; }
+
+/* JRPG dialogue box with the speaker on a tab above it. */
+#subtitle { position: absolute; left: 50%; bottom: 84px; width: max-content; min-width: 340px; max-width: min(720px, calc(100vw - 680px)); transform: translateX(-50%); padding: 12px 34px 12px 16px; font: 26px/1.05 var(--vt); color: #fff3d6; text-align: left; opacity: 0; transition: opacity 0.2s steps(2); }
+#subtitle.on { opacity: 1; }
+#subtitle.narration { color: #e6d3a8; }
+#subSpeaker { position: absolute; left: 10px; bottom: calc(100% + 5px); padding: 6px 8px 5px; background: #7a2416; color: #ffe2b8; font: 8px/1 var(--px); letter-spacing: 1px; white-space: nowrap; border: 2px solid; border-color: #e88a6a #3a0c06 #3a0c06 #e88a6a; box-shadow: 0 0 0 2px var(--black); }
+#subSpeaker:empty { display: none; }
+#subtitle .more { position: absolute; right: 12px; bottom: 10px; width: 0; height: 0; border: 6px solid transparent; border-top: 7px solid var(--amber); border-bottom: 0; animation: cursorBlink 0.8s steps(1) infinite; }
+@keyframes cursorBlink { 50% { visibility: hidden; } }
+
+#toasts { position: absolute; top: 104px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.toast { --hi: #a6e07a; --lo: #1d3814; padding: 10px 16px 8px; min-width: 320px; max-width: 520px; text-align: center; background: rgba(24, 46, 18, 0.95); border-color: var(--hi) var(--lo) var(--lo) var(--hi); transition: opacity 0.6s steps(4); animation: toastIn 0.25s steps(3); }
+.toast.writeup { --hi: #ff9a7a; --lo: #4a0e08; background: rgba(92, 20, 12, 0.95); }
+.toast.corp { --hi: #9ec4e8; --lo: #132638; background: rgba(20, 38, 58, 0.95); }
+.toast b { display: block; font: 12px/1.3 var(--px); letter-spacing: 1px; color: #fff3d6; text-shadow: 2px 2px 0 var(--black); margin-bottom: 4px; }
+.toast span { font: 22px/1 var(--vt); color: var(--ink); }
+.toast.out { opacity: 0; }
+@keyframes toastIn { from { transform: translateY(-12px); opacity: 0; } }
+
+#stamp { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%) rotate(-8deg); font: 48px/1 var(--px); color: var(--red-hi); white-space: nowrap; padding: 18px 26px 14px; border: 6px solid var(--red-hi); background: rgba(40, 8, 4, 0.35); text-shadow: 4px 4px 0 #2a0804; box-shadow: 4px 4px 0 #2a0804, inset 0 0 0 4px rgba(40, 8, 4, 0.6); opacity: 0; }
+#stamp.on { animation: stamp 2.2s steps(30); }
+@keyframes stamp {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(2.5); }
+  12% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+}
+
+/* The chat is an old terminal window. */
+#chat { position: absolute; right: 14px; top: 14px; bottom: 60px; width: 310px; display: flex; flex-direction: column; overflow: hidden; background: rgba(10, 7, 5, 0.86) repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px); }
+#chatHead { display: flex; align-items: center; gap: 8px; background: #4e3418; }
+.live { padding: 3px 4px 2px; background: var(--red); color: #fff3d6; border: 1px solid #ff9a7a; animation: blink 1.6s steps(1) infinite; }
+#chatLines { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 6px 10px 8px; font: 20px/1 var(--vt); color: #e6d6b4; }
+#chatLines::after { content: '_'; color: var(--amber); animation: cursorBlink 1s steps(1) infinite; }
+.line { margin: 3px 0; overflow-wrap: break-word; }
+.line b { font-weight: normal; }
+
+#help { position: absolute; left: 14px; bottom: 14px; max-width: 470px; padding: 5px 10px 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; font: 18px/1 var(--vt); color: #d9c8a4; background: rgba(22, 15, 10, 0.7); }
+
+/* Pixel fonts look tiny on big screens, so the HUD and menus grow a bit there. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  #hud, .card { zoom: 1.25; }
+}
+
+/* Menu screens. */
+#overlay { position: fixed; inset: 0; display: none; background: rgba(8, 5, 3, 0.8); overflow: auto; padding: 16px; }
+#overlay.on { display: flex; }
+.card { margin: auto; max-width: 860px; width: 100%; padding: 26px 32px 28px; color: var(--ink); background: rgba(22, 15, 10, 0.95); font: 22px/1.1 var(--vt); }
+.card h1 { font: 40px/1.2 var(--px); margin: 0 0 14px; color: var(--amber); letter-spacing: 2px; text-shadow: 4px 4px 0 #7a1f14; }
+.card h2 { font: 24px/1.2 var(--px); margin: 0 0 14px; color: var(--amber); text-shadow: 3px 3px 0 #7a1f14; }
+.card p { margin: 10px 0; }
+.card .tag { margin: 0 0 12px; font: 10px/1.4 var(--px); letter-spacing: 1px; color: var(--dim); text-transform: uppercase; }
+.card .intro { font-size: 24px; }
+.card > h3.wt, .review .side > h3.wt { display: inline-block; margin: 14px 0 0; padding: 7px 10px 6px; font-weight: normal; border: 2px solid; border-color: #e88a6a #3a0c06 #3a0c06 #e88a6a; box-shadow: 0 0 0 2px var(--black); }
+.card > h3.wt + .jobs, .card > h3.wt + .controls { margin-top: 12px; }
+.card .legal { margin: 28px 0 0; font: 8px/1.4 var(--px); letter-spacing: 1px; color: #7d6a4c; }
+.jobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 14px 0; }
+.job { position: relative; padding: 8px 9px; display: flex; flex-direction: column; gap: 5px; font: 17px/1 var(--vt); color: var(--dim); background: #120c08; border: 2px solid; border-color: var(--black) #4a3826 #4a3826 var(--black); }
+.job b { font: 8px/1.4 var(--px); font-weight: normal; color: var(--ink); }
+.job em { font-style: normal; color: var(--amber); }
+.job.active { padding-left: 24px; color: #d8f0c4; background: #1f3315; border-color: #a6e07a #13240c #13240c #a6e07a; box-shadow: 0 0 0 2px var(--black); }
+.job.active b { color: #c8f59a; }
+.job.active::before { content: ''; position: absolute; left: 8px; top: 11px; border: 5px solid transparent; border-left: 7px solid var(--amber); border-right: 0; animation: cursorBlink 0.8s steps(1) infinite; }
+.job.locked { opacity: 0.5; }
+.rules { font-size: 22px; color: var(--amber); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 16px; font: 20px/1 var(--vt); margin: 14px 0 22px; color: #d9c8a4; }
+kbd { display: inline-block; margin-right: 2px; padding: 4px 5px 3px; font: 8px/1 var(--px); color: #1a0f08; background: #e6d6b0; border: 2px solid; border-color: #fff6dc #7a6a4a #7a6a4a #fff6dc; vertical-align: 2px; }
+
+/* Buttons are menu items with a blinking cursor on hover. */
+button { position: relative; margin: 4px 0; padding: 13px 22px 11px 34px; font: 16px/1 var(--px); letter-spacing: 1px; color: #fff3d6; background: #8c2a1c; border: 3px solid; border-color: #e88a6a #3a0c06 #3a0c06 #e88a6a; border-radius: 0; box-shadow: 0 0 0 2px var(--black); cursor: pointer; text-shadow: 2px 2px 0 #3a0c06; }
+button::before { content: ''; position: absolute; left: 12px; top: 50%; margin-top: -6px; border: 6px solid transparent; border-left: 8px solid var(--amber); border-right: 0; visibility: hidden; }
+button:hover, button:focus-visible { background: #b8382a; outline: none; }
+button:hover::before, button:focus-visible::before { visibility: visible; animation: cursorBlink 0.6s steps(1) infinite; }
+button:active { border-color: #3a0c06 #e88a6a #e88a6a #3a0c06; padding: 14px 21px 10px 35px; }
+
+/* Performance review and payslip. */
+.review { max-width: 960px; padding: 20px 28px 22px; }
+.review h2 { color: var(--green); text-shadow: 3px 3px 0 #1d3814; }
+.review.fired h2 { color: var(--red-hi); text-shadow: 3px 3px 0 #2a0804; }
+.review h2, .review .reason { margin: 0 0 10px; }
+.review .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.review .pane { background: #120c08; border: 2px solid; border-color: var(--black) #4a3826 #4a3826 var(--black); padding-bottom: 6px; }
+.review .pane .wt { margin: 0; }
+.review .pane p { margin: 8px 10px 2px; font-size: 20px; color: var(--red-hi); }
+.review table { width: 100%; border-collapse: collapse; font: 20px/1 var(--vt); }
+.review td { padding: 1px 10px 0; border-bottom: 2px dotted #3a2a1c; }
+.review td:last-child { text-align: right; white-space: nowrap; color: var(--ink); }
+.review td:first-child { color: #d9c8a4; }
+.review td.neg, .review .neg { color: var(--red-hi); }
+.review .total td { padding-top: 7px; padding-bottom: 4px; border-top: 4px double var(--dim); border-bottom: none; font: 10px/1.2 var(--px); color: var(--ink); }
+.review .total td.neg { color: var(--red-hi); }
+.review .verdict { margin: 14px 2px 8px; font-size: 24px; color: var(--amber); }
+.review .eotm { margin: 8px 2px 4px; }
+.review .eotm b { display: inline-block; margin-bottom: 4px; font: 8px/1 var(--px); font-weight: normal; color: var(--dim); }
+.review .ach { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 2px 4px; }
+.review .side > h3.wt { margin-top: 16px; }
+.review .side button { margin-top: 16px; }
+.review .ach span { padding: 6px 8px 5px; font: 8px/1 var(--px); color: #e8ffd8; background: #2f5a1e; border: 2px solid; border-color: #a6e07a #13240c #13240c #a6e07a; box-shadow: 0 0 0 1px var(--black); cursor: help; }
+
+/* ---------------------------------------------------------------- intro */
+#intro { position: fixed; inset: 0; z-index: 20; cursor: pointer; overflow: hidden; }
+#introBlack { position: absolute; inset: 0; background: #000; opacity: 1; }
+.introBar { position: absolute; left: 0; right: 0; height: 12vh; background: #000; }
+.introBar.top { top: 0; }
+.introBar.bottom { bottom: 0; }
+#introCaption { position: absolute; left: 50%; bottom: 3.5vh; width: 84%; transform: translateX(-50%); text-align: center; color: #f2f2f2; font: 26px/1.3 'Courier New', monospace; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.25); }
+#introCaption.boss { color: #ff6b5b; }
+#introCaption.stamp { bottom: 44vh; font: 84px Impact, 'Arial Black', sans-serif; color: #e74c3c; letter-spacing: 6px; animation: introStamp 0.5s ease-out; }
+#introCard { position: absolute; left: 6vw; top: 20vh; opacity: 0; transform: translateX(-40px); transition: opacity 0.4s, transform 0.4s; color: #fff; }
+#introCard.on { opacity: 1; transform: none; }
+#introCard b { display: block; font: 110px Impact, 'Arial Black', sans-serif; color: #e74c3c; letter-spacing: 6px; line-height: 1; text-shadow: 4px 4px 0 #000; }
+#introCard span { display: block; font: bold 22px 'Courier New', monospace; text-shadow: 2px 2px 0 #000; margin-top: 6px; }
+#introChat { position: absolute; right: 3vw; top: 16vh; width: 330px; padding: 10px; display: none; background: rgba(15, 20, 28, 0.8); border-radius: 8px; font: 14px/1.45 'Courier New', monospace; color: #eee; }
+#introChat.on { display: block; }
+#introChat b { color: #ff6fb5; }
+#introTitle { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-6deg) scale(3); opacity: 0; text-align: center; }
+#introTitle.on { opacity: 1; transform: translate(-50%, -50%) rotate(-6deg) scale(1); transition: transform 0.35s cubic-bezier(0.2, 1.6, 0.5, 1), opacity 0.2s; }
+#introTitle b { display: block; white-space: nowrap; font: 120px Impact, 'Arial Black', sans-serif; color: #e74c3c; letter-spacing: 8px; border: 10px solid #e74c3c; padding: 0 30px; border-radius: 14px; }
+#introTitle span { display: block; margin-top: 16px; font: bold 22px 'Courier New', monospace; color: #fff; letter-spacing: 4px; text-transform: uppercase; }
+#introSkip { position: absolute; top: 3.5vh; right: 2vw; color: #777; font: 13px 'Courier New', monospace; }
+@keyframes introStamp { 0% { transform: translateX(-50%) scale(2.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+.boot { max-width: 620px; text-align: center; padding-top: 34px; }
+.boot h1 { margin-bottom: 26px; }
+.blink { margin: 18px 0 !important; font: 16px/1 var(--px); letter-spacing: 2px; color: var(--amber); text-shadow: 2px 2px 0 #5e1a10; animation: blinkText 1.1s steps(2, start) infinite; }
+@keyframes blinkText { to { visibility: hidden; } }
+button.secondary { margin-left: 16px; font-size: 12px; padding: 15px 18px 13px 30px; background: #3a2a1c; border-color: #a88a5c #140c06 #140c06 #a88a5c; text-shadow: 2px 2px 0 #140c06; }
+button.secondary::before { left: 10px; }
+button.secondary:hover, button.secondary:focus-visible { background: #5a4128; }
+button.secondary:active { border-color: #140c06 #a88a5c #a88a5c #140c06; padding: 16px 17px 12px 31px; }
+#introPapers { position: absolute; inset: 0; pointer-events: none; }
+.paper { position: absolute; left: 50%; top: 50%; width: 560px; padding: 18px 26px 22px; background: #f3ecd8; color: #1d1d1d; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7); font-family: Georgia, 'Times New Roman', serif; text-align: center; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); animation: paperSpin 0.6s ease-out; }
+.paper small { display: block; font: bold 13px Georgia, serif; letter-spacing: 3px; border-bottom: 3px double #1d1d1d; padding-bottom: 6px; margin-bottom: 10px; }
+.paper b { display: block; font: 900 38px/1.05 Georgia, 'Times New Roman', serif; text-transform: uppercase; }
+.paper span { display: block; margin-top: 10px; font-style: italic; font-size: 17px; }
+@keyframes paperSpin {
+  from { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(calc(var(--rot) + 720deg)) scale(0.05); opacity: 0; }
+  to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(1); opacity: 1; }
+}
+#introLetter { position: absolute; left: 50%; top: 47%; width: 600px; padding: 30px 40px; background: #fbf8ef; color: #222; font: 17px/1.45 'Courier New', monospace; box-shadow: 0 14px 50px rgba(0, 0, 0, 0.8); opacity: 0; transform: translate(-50%, -40%) rotate(-2deg); transition: opacity 0.8s, transform 1.2s ease-out; }
+#introLetter.on { opacity: 1; transform: translate(-50%, -50%) rotate(-1deg); }
+#introLetter div:first-child { font-weight: bold; color: #c0392b; letter-spacing: 1px; }
+
+/* Jobs that can be picked on the title screen */
+.job.pick { cursor: pointer; }
+.job.pick:hover { color: var(--ink); border-color: #a88a5c #140c06 #140c06 #a88a5c; }
+
+/* CLOCK IN sits right under the job cards so it stays visible on small screens. */
+.card .actions { display: flex; flex-wrap: wrap; align-items: center; margin: 4px 0 6px; }
+.job i.sec { font: 7px/1.4 var(--px); font-style: normal; color: #c8a2ff; letter-spacing: 1px; }
+.toast.secret { --hi: #d6b4ff; --lo: #2a1440; background: rgba(46, 22, 70, 0.95); }
